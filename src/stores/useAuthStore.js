@@ -19,6 +19,11 @@ const useAuthStore = create(
                 import('./useFavoriteStore').then((module) => {
                     module.default.getState().fetchFavorites();
                 });
+
+                // Cargar watchlist después de login
+                import('./useWatchlistStore').then((module) => {
+                    module.default.getState().fetchWatchlist();
+                });
             },
 
             setUser: (user) => {
@@ -35,6 +40,11 @@ const useAuthStore = create(
                 import('./useFavoriteStore').then((module) => {
                     module.default.getState().clearFavorites();
                 });
+
+                // Limpiar watchlist al logout
+                import('./useWatchlistStore').then((module) => {
+                    module.default.getState().clearWatchlist();
+                });
             },
 
             // Inicializar desde localStorage
@@ -50,6 +60,11 @@ const useAuthStore = create(
                         // Cargar favoritos si hay sesión activa
                         import('./useFavoriteStore').then((module) => {
                             module.default.getState().fetchFavorites();
+                        });
+
+                        // Cargar watchlist si hay sesión activa
+                        import('./useWatchlistStore').then((module) => {
+                            module.default.getState().fetchWatchlist();
                         });
 
                     } catch (error) {

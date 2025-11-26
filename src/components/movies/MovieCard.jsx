@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom'
-import { FiStar } from 'react-icons/fi'
-import { FaHeart } from 'react-icons/fa'
+import { FiStar, FiHeart, FiList } from 'react-icons/fi'
+import { FaHeart, FaList } from 'react-icons/fa'
 import { TMDB_IMAGE_BASE_URL, IMAGE_SIZES } from '../../utils/constants'
 import useFavorite from '../../hooks/useFavorite'
+import useWatchlist from '../../hooks/useWatchlist'
 import useAuthStore from '../../stores/useAuthStore'
 
 function MovieCard({ movie }) {
@@ -25,6 +26,19 @@ function MovieCard({ movie }) {
         e.preventDefault()
         e.stopPropagation()
         toggleFavorite()
+    }
+
+    const { isInWatchlist, loading: watchlistLoading, toggleWatchlist } = useWatchlist(
+        movie.id,
+        'movie',
+        movie.title,
+        movie.poster_path
+    )
+
+    const handleWatchlistClick = (e) => {
+        e.preventDefault()
+        e.stopPropagation()
+        toggleWatchlist()
     }
 
     return (
@@ -52,19 +66,20 @@ function MovieCard({ movie }) {
                     <div className="flex items-center justify-between text-sm">
                         <span className="text-gray-300">{year}</span>
 
-                        {movie.vote_average > 0 && (
+                        {/*{movie.vote_average > 0 && (
                             <div className="flex items-center space-x-1 text-yellow-500">
                                 <FiStar className="fill-current" />
                                 <span className="font-semibold">{movie.vote_average.toFixed(1)}</span>
                             </div>
-                        )}
+                        )}*/ }
                     </div>
                 </div>
             </div>
 
             {/* Rating Badge (always visible) */}
             {movie.vote_average > 0 && (
-                <div className="absolute top-2 right-2 bg-black/80 px-2 py-1 rounded-md flex items-center space-x-1">
+                <div className="absolute top-2 right-2  px-2 py-1 rounded-md flex items-center space-x-1">
+                    {/*<div className="absolute top-2 right-2 bg-black/80 px-2 py-1 rounded-md flex items-center space-x-1">*/}
                     <FiStar className="text-yellow-500 fill-current text-sm" />
                     <span className="text-white text-sm font-semibold">
             {movie.vote_average.toFixed(1)}
@@ -84,7 +99,23 @@ function MovieCard({ movie }) {
                     {isFavorite ? (
                         <FaHeart className="text-red-500 text-lg" />
                     ) : (
-                        <FaHeart className="text-white text-lg" />
+                        <FiHeart className="text-white text-lg" />
+                    )}
+                </button>
+            )}
+
+            {/* Watchlist Button */}
+            {isAuthenticated && (
+                <button
+                    onClick={handleWatchlistClick}
+                    disabled={watchlistLoading}
+                    className="absolute bottom-2 right-2 bg-black/80 hover:bg-black p-2 rounded-full transition disabled:opacity-50"
+                    title={isInWatchlist ? 'Quitar de mi lista' : 'Agregar a mi lista'}
+                >
+                    {isInWatchlist ? (
+                        <FaList className="text-blue-500 text-lg" />
+                    ) : (
+                        <FiList className="text-white text-lg" />
                     )}
                 </button>
             )}
