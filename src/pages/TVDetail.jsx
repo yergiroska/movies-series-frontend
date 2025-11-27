@@ -61,6 +61,8 @@ function TVDetail() {
         show?.poster_path
     )
 
+    const watchlistItem = useWatchlistStore((state) => state.getWatchlistItem('tv', show?.id))
+
     if (loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
@@ -216,7 +218,6 @@ function TVDetail() {
                                 {show.overview || 'No hay sinopsis disponible.'}
                             </p>
                         </div>
-
                         {/* Mi Reseña */}
                         {watchlistItem && (
                             <div className="mt-8 bg-gray-800 p-6 rounded-lg">
@@ -226,9 +227,9 @@ function TVDetail() {
                                     <div className="flex items-center space-x-2">
                                         <span className="text-gray-400">Estado:</span>
                                         <span className="bg-blue-600 px-3 py-1 rounded-full text-sm">
-          {watchlistItem.status === 'completed' ? 'Vista' :
-              watchlistItem.status === 'watching' ? 'Viendo' : 'Por Ver'}
-        </span>
+                                          {watchlistItem.status === 'completed' ? 'Vista' :
+                                              watchlistItem.status === 'watching' ? 'Viendo' : 'Por Ver'}
+                                        </span>
                                     </div>
 
                                     {watchlistItem.user_rating && (
@@ -242,8 +243,8 @@ function TVDetail() {
                                                     />
                                                 ))}
                                                 <span className="text-yellow-500 font-bold ml-2">
-              {watchlistItem.user_rating}/5
-            </span>
+                                                  {watchlistItem.user_rating}/5
+                                                </span>
                                             </div>
                                         </div>
                                     )}
@@ -264,6 +265,7 @@ function TVDetail() {
                                 </button>
                             </div>
                         )}
+
                     </div>
                 </div>
 
