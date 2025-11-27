@@ -1,11 +1,14 @@
 import { Link, useNavigate } from 'react-router-dom'
-import { FiFilm, FiTv, FiHeart, FiList, FiUser, FiLogOut, FiLogIn } from 'react-icons/fi'
+import { FiFilm, FiTv, FiHeart, FiList, FiUser, FiLogOut, FiLogIn, FiSearch } from 'react-icons/fi'
+import { useState} from "react";
 import useAuthStore from '../../stores/useAuthStore'
 import authService from '../../services/authService'
 
 function Navbar() {
     const { isAuthenticated, user, logout } = useAuthStore()
     const navigate = useNavigate()
+    const [searchQuery, setSearchQuery] = useState('')
+    const [searchOpen, setSearchOpen] = useState(false)
 
     const handleLogout = async () => {
         try {
@@ -16,6 +19,25 @@ function Navbar() {
             console.error('Error al cerrar sesión:', error)
             logout()
             navigate('/login')
+        }
+    }
+
+    const handleSearch = (e) => {
+        e.preventDefault()
+        if (searchQuery.trim()) {
+            navigate(`/search?query=${encodeURIComponent(searchQuery.trim())}`)
+            setSearchQuery('')
+            setSearchOpen(false)
+        }
+    }
+
+    const toggleSearch = () => {
+        setSearchOpen(!searchOpen)
+        if (!searchOpen) {
+            // Focus en el input cuando se abre
+            setTimeout(() => {
+                document.getElementById('search-input')?.focus()
+            }, 100)
         }
     }
 
@@ -67,6 +89,28 @@ function Navbar() {
                             </>
                         )}
                     </div>
+
+                    {/* Search Bar */}<form onSubmit={handleSearch} className="hidden md:block">
+                    <div className="relative flex items-center">
+                        <FiSearch className="absolute left-3 text-gray-400 pointer-events-none" />
+                        <input
+                            type="text"
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            placeholder="Títulos, personas, géneros"
+                            className="bg-gray-700 text-white pl-10 pr-10 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 w-72"
+                        />
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onClick={() => setSearchQuery('')}
+                                className="absolute right-3 text-gray-400 hover:text-white transition"
+                            >
+                                ✕
+                            </button>
+                        )}
+                    </div>
+                </form>
 
                     {/* User Menu */}
                     <div className="flex items-center space-x-4">

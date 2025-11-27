@@ -11,7 +11,8 @@ function MovieCard({ movie }) {
         ? `${TMDB_IMAGE_BASE_URL}${IMAGE_SIZES.poster}${movie.poster_path}`
         : 'https://via.placeholder.com/500x750?text=No+Image'
 
-    const year = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'
+    //const year = movie.release_date ? new Date(movie.release_date).getFullYear() : 'N/A'
+    const year = movie.release_date ? new Date(movie.release_date).getFullYear() : null
 
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
     const { isFavorite, loading, toggleFavorite } = useFavorite(
@@ -64,8 +65,7 @@ function MovieCard({ movie }) {
                     </h3>
 
                     <div className="flex items-center justify-between text-sm">
-                        <span className="text-gray-300">{year}</span>
-
+                        { year && <span className="text-gray-300">{year}</span> }
                         {/*{movie.vote_average > 0 && (
                             <div className="flex items-center space-x-1 text-yellow-500">
                                 <FiStar className="fill-current" />
