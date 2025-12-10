@@ -13,7 +13,7 @@ const useWatchlistStore = create((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const data = await watchlistService.getAll();
-            set({ watchlist: data, isLoading: false });
+            set({ watchlist: data.watchlist || [], isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
         }
@@ -21,14 +21,25 @@ const useWatchlistStore = create((set, get) => ({
 
     // Agregar a watchlist
     addToWatchlist: async (mediaData) => {
+        console.log('Store addToWatchlist received:', mediaData);  // ← AGREGAR
         set({ isLoading: true, error: null });
         try {
-            const newItem = await watchlistService.add(mediaData);
+            const response = await watchlistService.add({
+                tmdb_id: parseInt(mediaData.tmdb_id),
+                media_type: mediaData.media_type,
+                title: mediaData.title,
+                poster_path: mediaData.poster_path || null,
+                status: mediaData.status || 'plan_to_watch',
+                user_rating: mediaData.user_rating || null,
+                notes: mediaData.notes || null,
+            });
+
+            console.log('Response from backend:', response);
             set((state) => ({
-                watchlist: [...state.watchlist, newItem],
+                watchlist: [...state.watchlist, response.watchlist],
                 isLoading: false,
             }));
-            return newItem;
+            return response.watchlist;
         } catch (error) {
             set({ error: error.message, isLoading: false });
             throw error;
@@ -39,14 +50,14 @@ const useWatchlistStore = create((set, get) => ({
     updateWatchlistItem: async (id, data) => {
         set({ isLoading: true, error: null });
         try {
-            const updatedItem = await watchlistService.update(id, data);
+            const response = await watchlistService.update(id, data);
             set((state) => ({
                 watchlist: state.watchlist.map((item) =>
-                    item.id === id ? updatedItem : item
+                    item.id === id ? response.watchlist : item
                 ),
                 isLoading: false,
             }));
-            return updatedItem;
+            return response.watchlist;
         } catch (error) {
             set({ error: error.message, isLoading: false });
             throw error;
@@ -88,6 +99,21 @@ const useWatchlistStore = create((set, get) => ({
     getByStatus: (status) => {
         const { watchlist } = get();
         return watchlist.filter((item) => item.status === status);
+    },
+
+    // Toggle watchlist
+    toggleWatchlist: async (mediaData) => {
+        const { isInWatchlist, addToWatchlist, getWatchlistItem, removeFromWatchlist } = get();
+        const { media_type, tmdb_id } = mediaData;
+
+        if (isInWatchlist(media_type, tmdb_id)) {
+            const item = getWatchlistItem(media_type, tmdb_id);
+            await removeFromWatchlist(item.id);
+            return false;
+        } else {
+            await addToWatchlist(mediaData);
+            return true;
+        }
     },
 
     // Limpiar estado

@@ -12,7 +12,8 @@ const useFavoriteStore = create((set, get) => ({
         set({ isLoading: true, error: null });
         try {
             const data = await favoriteService.getAll();
-            set({ favorites: data, isLoading: false });
+            //set({ favorites: data, isLoading: false });
+            set({ favorites: data.favorites || [], isLoading: false });
         } catch (error) {
             set({ error: error.message, isLoading: false });
         }
@@ -22,12 +23,18 @@ const useFavoriteStore = create((set, get) => ({
     addFavorite: async (mediaData) => {
         set({ isLoading: true, error: null });
         try {
-            const newFavorite = await favoriteService.add(mediaData);
+            const response = await favoriteService.add(
+                parseInt(mediaData.tmdb_id),     // Asegurar que sea integer
+                mediaData.media_type,
+                mediaData.title,
+                mediaData.poster_path || null,
+                mediaData.overview || null
+            );
             set((state) => ({
-                favorites: [...state.favorites, newFavorite],
+                favorites: [...state.favorites, response.favorite],
                 isLoading: false,
             }));
-            return newFavorite;
+            return response.favorite;
         } catch (error) {
             set({ error: error.message, isLoading: false });
             throw error;
