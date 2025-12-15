@@ -4,11 +4,13 @@ import { FiChevronLeft, FiChevronRight } from 'react-icons/fi'
 import movieService from '../services/movieService'
 import tvService from '../services/tvService'
 import { TMDB_IMAGE_BASE_URL, IMAGE_SIZES } from '../utils/constants'
+import useAuthStore from "../stores/useAuthStore.js";
 
 function Home() {
     const [content, setContent] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [loading, setLoading] = useState(true)
+    const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
     useEffect(() => {
         loadContent()
@@ -190,6 +192,7 @@ function Home() {
                 </div>
 
                 {/* Call to Action */}
+                {!isAuthenticated && (
                 <section className="bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl p-12 text-center">
                     <h2 className="text-4xl font-bold mb-4">
                         ¿Listo para explorar?
@@ -204,6 +207,7 @@ function Home() {
                         Registrarse Gratis
                     </Link>
                 </section>
+                )}
             </div>
         </div>
     )

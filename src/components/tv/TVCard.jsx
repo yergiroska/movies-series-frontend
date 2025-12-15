@@ -92,12 +92,12 @@ function TVCard({ show }) {
                 <button
                     onClick={handleFavoriteClick}
                     disabled={loading}
-                    className="absolute top-2 left-2 transition disabled:opacity-50"
+                    className={`absolute top-2 left-2 p-1.5 rounded-full transition-all disabled:opacity-50 ${isFavorite ? 'bg-red-600 hover:bg-red-700 scale-110 shadow-lg shadow-red-500/50' : 'bg-black/80 hover:bg-black'}`}
                     //className="absolute top-2 left-2 bg-black/80 hover:bg-black p-2 rounded-full transition disabled:opacity-50"
                     title={isFavorite ? 'Quitar de favoritos' : 'Agregar a favoritos'}
                 >
                     {isFavorite ? (
-                        <FaHeart className="text-red-500 text-lg" />
+                        <FaHeart className="text-white text-lg animate-pulse" />
                     ) : (
                         <FiHeart className="text-white text-lg" />
                     )}
@@ -109,11 +109,11 @@ function TVCard({ show }) {
                 <button
                     onClick={handleWatchlistClick}
                     disabled={watchlistLoading}
-                    className="absolute bottom-2 right-2 bg-black/80 hover:bg-black p-2 rounded-full transition disabled:opacity-50"
+                    className={`absolute bottom-2 right-2 p-1.5 rounded-full transition-all disabled:opacity-50 ${isInWatchlist ? 'bg-blue-600 hover:bg-blue-700 scale-110 shadow-lg shadow-blue-500/50' : 'bg-black/80 hover:bg-black'}`}
                     title={isInWatchlist ? 'Quitar de mi lista' : 'Agregar a mi lista'}
                 >
                     {isInWatchlist ? (
-                        <FaList className="text-blue-500 text-lg" />
+                        <FaList className="text-white text-lg animate-pulse" />
                     ) : (
                         <FiList className="text-white text-lg" />
                     )}

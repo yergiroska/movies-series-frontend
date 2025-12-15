@@ -9,7 +9,7 @@ function MainLayout({ children }) {
             </main>
             <footer className="bg-gray-800 border-t border-gray-700 mt-auto">
                 <div className="container mx-auto px-4 py-6 text-center text-gray-400">
-                    <p>Movies & Series Platform © 2025</p>
+                    <p>CineVerse © 2025 - Tu universo de entretenimiento</p>
                 </div>
             </footer>
         </div>

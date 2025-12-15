@@ -4,6 +4,7 @@ import useAuthStore from '../stores/useAuthStore'
 import authService from '../services/authService'
 import useFavoriteStore from '../stores/useFavoriteStore'
 import useWatchlistStore from '../stores/useWatchlistStore'
+import Avatar from '../components/common/Avatar'
 
 function Profile() {
     const { user, setUser } = useAuthStore()
@@ -89,6 +90,10 @@ function Profile() {
     return (
         <div className="max-w-4xl mx-auto">
             <h1 className="text-4xl font-bold mb-8">Mi Perfil</h1>
+            {/* Avatar Section */}
+            <div className="flex justify-center mb-8">
+                <Avatar name={user?.name} size="2xl" />
+            </div>
 
             {/* Estadísticas */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">

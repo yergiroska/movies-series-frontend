@@ -1,14 +1,16 @@
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { FiFilm, FiTv, FiHeart, FiList, FiUser, FiLogOut, FiLogIn, FiSearch } from 'react-icons/fi'
 import { useState} from "react";
 import useAuthStore from '../../stores/useAuthStore'
 import authService from '../../services/authService'
+import Avatar from '../../components/common/Avatar.jsx'
 
 function Navbar() {
     const { isAuthenticated, user, logout } = useAuthStore()
     const navigate = useNavigate()
     const [searchQuery, setSearchQuery] = useState('')
     const [searchOpen, setSearchOpen] = useState(false)
+    const location = useLocation()
 
     const handleLogout = async () => {
         try {
@@ -41,6 +43,10 @@ function Navbar() {
         }
     }
 
+    const isActive = (path) => {
+        return location.pathname === path || location.pathname.startsWith(path + '/')
+    }
+
     return (
         <nav className="bg-gray-800 border-b border-gray-700">
             <div className="container mx-auto px-4">
@@ -48,14 +54,14 @@ function Navbar() {
                     {/* Logo */}
                     <Link to="/" className="flex items-center space-x-2">
                         <FiFilm className="text-red-500 text-2xl" />
-                        <span className="text-xl font-bold text-white">Movies - Series Platform</span>
+                        <span className="text-xl font-bold text-white">CineVerse</span>
                     </Link>
 
                     {/* Navigation Links */}
                     <div className="hidden md:flex items-center space-x-6">
                         <Link
                             to="/movies"
-                            className="flex items-center space-x-1 text-gray-300 hover:text-white transition"
+                            className={`flex items-center space-x-1 transition ${isActive('/movies') ? 'text-red-500 font-semibold' : 'text-gray-300 hover:text-white'}`}
                         >
                             <FiFilm />
                             <span>Películas</span>
@@ -63,7 +69,7 @@ function Navbar() {
 
                         <Link
                             to="/tv"
-                            className="flex items-center space-x-1 text-gray-300 hover:text-white transition"
+                            className={`flex items-center space-x-1 transition ${isActive('/tv') ? 'text-red-500 font-semibold' : 'text-gray-300 hover:text-white'}`}
                         >
                             <FiTv />
                             <span>Series</span>
@@ -73,7 +79,7 @@ function Navbar() {
                             <>
                                 <Link
                                     to="/favorites"
-                                    className="flex items-center space-x-1 text-gray-300 hover:text-white transition"
+                                    className={`flex items-center space-x-1 transition ${isActive('/favorites') ? 'text-red-500 font-semibold' : 'text-gray-300 hover:text-white'}`}
                                 >
                                     <FiHeart />
                                     <span>Favoritos</span>
@@ -81,7 +87,7 @@ function Navbar() {
 
                                 <Link
                                     to="/watchlist"
-                                    className="flex items-center space-x-1 text-gray-300 hover:text-white transition"
+                                    className={`flex items-center space-x-1 transition ${isActive('/watchlist') ? 'text-red-500 font-semibold' : 'text-gray-300 hover:text-white'}`}
                                 >
                                     <FiList />
                                     <span>Mi Lista</span>
@@ -118,9 +124,9 @@ function Navbar() {
                             <>
                                 <Link
                                     to="/profile"
-                                    className="flex items-center space-x-2 text-gray-300 hover:text-white transition"
+                                    className={`flex items-center space-x-2 transition ${isActive('/profile')? 'text-red-500 font-semibold': 'text-gray-300 hover:text-white'}`}
                                 >
-                                    <FiUser />
+                                    <Avatar name={user?.name} size="sm" />
                                     <span className="hidden md:inline">{user?.name}</span>
                                 </Link>
 
