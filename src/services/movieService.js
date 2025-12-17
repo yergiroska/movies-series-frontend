@@ -36,6 +36,12 @@ const movieService = {
         const response = await api.get(`/movies/${id}/similar?page=${page}`);
         return response.data;
     },
+
+    // Obtener proveedores de streaming
+    getProviders: async (id) => {
+        const response = await api.get(`/movies/${id}/providers`);
+        return response.data;
+    },
 };
 
 export default movieService;

@@ -17,6 +17,8 @@ function MovieDetail() {
     const [similar, setSimilar] = useState([])
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
+    const [providers, setProviders] = useState(null)
+
 
     const [showWatchlistModal, setShowWatchlistModal] = useState(false)
 
@@ -31,13 +33,18 @@ function MovieDetail() {
         setError(null)
 
         try {
-            const [movieData, similarData] = await Promise.all([
+            const [movieData, similarData, providersData] = await Promise.all([
                 movieService.getDetail(id),
-                movieService.getSimilar(id)
+                movieService.getSimilar(id),
+                movieService.getProviders(id),
             ])
 
             setMovie(movieData)
             setSimilar(similarData.results?.slice(0, 6) || [])
+
+            // Obtener providers de tu país (ES = España)
+            const countryProviders = providersData.results?.ES
+            setProviders(countryProviders)
         } catch (err) {
             console.error('Error loading movie:', err)
             setError('Error al cargar la película')
@@ -218,6 +225,105 @@ function MovieDetail() {
                                 {movie.overview || 'No hay sinopsis disponible.'}
                             </p>
                         </div>
+
+                        {/* Where to Watch */}
+                        {isAuthenticated ? (
+                        <>
+                        {providers && (providers.flatrate || providers.rent || providers.buy) && (
+                            <div className="mt-8">
+                                <h2 className="text-2xl font-bold mb-4">Dónde Ver</h2>
+
+                                {/* Streaming */}
+                                {providers.flatrate && providers.flatrate.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-400 mb-3">Streaming</h3>
+                                        <div className="flex flex-wrap gap-4">
+                                            {providers.flatrate.map((provider) => (
+                                                <a
+                                                key={provider.provider_id}
+                                                href={providers.link || '#'}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="group relative"
+                                                title={provider.provider_name}
+                                                >
+                                                <img
+                                                src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
+                                                alt={provider.provider_name}
+                                                className="w-16 h-16 rounded-lg shadow-lg group-hover:scale-110 transition-transform"
+                                                />
+                                                </a>
+                                                ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Rent */}
+                                {providers.rent && providers.rent.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-400 mb-3">Alquilar</h3>
+                                        <div className="flex flex-wrap gap-4">
+                                            {providers.rent.map((provider) => (
+                                                <a
+                                                key={provider.provider_id}
+                                                href={providers.link || '#'}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="group relative"
+                                                title={provider.provider_name}
+                                                >
+                                                <img
+                                                src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
+                                                alt={provider.provider_name}
+                                                className="w-16 h-16 rounded-lg shadow-lg group-hover:scale-110 transition-transform"
+                                                />
+                                                </a>
+                                                ))}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Buy */}
+                                {providers.buy && providers.buy.length > 0 && (
+                                    <div className="mb-6">
+                                        <h3 className="text-lg font-semibold text-gray-400 mb-3">Comprar</h3>
+                                        <div className="flex flex-wrap gap-4">
+                                            {providers.buy.map((provider) => (
+                                                <a
+                                                key={provider.provider_id}
+                                                href={providers.link || '#'}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="group relative"
+                                                title={provider.provider_name}
+                                                >
+                                                <img
+                                                src={`https://image.tmdb.org/t/p/original${provider.logo_path}`}
+                                                alt={provider.provider_name}
+                                                className="w-16 h-16 rounded-lg shadow-lg group-hover:scale-110 transition-transform"
+                                                />
+                                                </a>
+                                                ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                        </>
+                        ) : (
+                            <div className="mt-8 bg-gray-800 border border-gray-700 rounded-lg p-6 text-center">
+                                <h2 className="text-2xl font-bold mb-4">Dónde Ver</h2>
+                                <p className="text-gray-400 mb-4">
+                                    Inicia sesión para ver dónde está disponible esta película
+                                </p>
+                                <Link
+                                    to="/login"
+                                    className="inline-block bg-red-600 hover:bg-red-700 px-6 py-3 rounded-lg transition"
+                                >
+                                    Iniciar Sesión
+                                </Link>
+                            </div>
+                        )}
 
                         {/* Mi Reseña */}
                         {watchlistItem && (
