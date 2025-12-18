@@ -103,7 +103,7 @@ function Navbar() {
                             type="text"
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            placeholder="Títulos, personas, géneros"
+                            placeholder="Buscar por Títulos"
                             className="bg-gray-700 text-white pl-10 pr-10 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 w-72"
                         />
                         {searchQuery && (

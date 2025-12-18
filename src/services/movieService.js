@@ -42,6 +42,22 @@ const movieService = {
         const response = await api.get(`/movies/${id}/providers`);
         return response.data;
     },
+
+    // Obtener géneros de películas
+    getGenres: async () => {
+        const response = await api.get('/movies/genres/list');
+        return response.data;
+    },
+
+    // Descubrir películas con filtros
+    discover: async (genre = null, page = 1) => {
+        const params = { page };
+        if (genre) {
+            params.genre = genre;
+        }
+        const response = await api.get('/movies/discover', { params });
+        return response.data;
+    },
 };
 
 export default movieService;

@@ -42,6 +42,22 @@ const tvService = {
         const response = await api.get(`/tv/${id}/providers`);
         return response.data;
     },
+
+    // Obtener géneros de series
+    getGenres: async () => {
+        const response = await api.get('/tv/genres/list');
+        return response.data;
+    },
+
+    // Descubrir series con filtros
+    discover: async (genre = null, page = 1) => {
+        const params = { page };
+        if (genre) {
+            params.genre = genre;
+        }
+        const response = await api.get('/tv/discover', { params });
+        return response.data;
+    },
 };
 
 export default tvService;
