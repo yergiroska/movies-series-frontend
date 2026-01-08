@@ -10,6 +10,8 @@ function Home() {
     const [content, setContent] = useState([])
     const [currentIndex, setCurrentIndex] = useState(0)
     const [loading, setLoading] = useState(true)
+    const [popularMovies, setPopularMovies] = useState([])
+    const [popularShows, setPopularShows] = useState([])
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
     useEffect(() => {
@@ -47,6 +49,10 @@ function Home() {
                 title: s.name,
                 link: `/tv/${s.id}`
             }))
+
+            // Guardar para los collages
+            setPopularMovies(moviesData.results?.slice(0, 6) || [])
+            setPopularShows(showsData.results?.slice(0, 6) || [])
 
             // Mezclar películas y series
             const combined = [...movies, ...shows].sort(() => Math.random() - 0.5)
@@ -166,26 +172,82 @@ function Home() {
             {/* Quick Links */}
             <div className="container mx-auto px-4 py-12 flex-grow">
                 <div className="grid md:grid-cols-2 gap-8 mb-12">
+                    {/* Películas */}
                     <Link
                         to="/movies"
-                        className="group relative h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-red-600 to-red-800 hover:scale-105 transition-transform"
+                        className="group relative h-80 rounded-2xl overflow-hidden shadow-2xl hover:scale-105 transition-transform"
                     >
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center">
-                                <h2 className="text-4xl font-bold mb-2">Películas</h2>
-                                <p className="text-lg text-gray-200">Explora nuestro catálogo</p>
+                        {/* Collage de Imágenes de Películas */}
+                        {popularMovies.length > 0 ? (
+                            <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-1">
+                                {popularMovies.slice(0, 6).map((movie, index) => {
+                                    const posterUrl = movie.poster_path
+                                        ? `${TMDB_IMAGE_BASE_URL}${IMAGE_SIZES.poster}${movie.poster_path}`
+                                        : 'https://via.placeholder.com/500x750?text=No+Image'
+
+                                    return (
+                                        <div
+                                            key={index}
+                                            className="relative overflow-hidden"
+                                        >
+                                            <img
+                                                src={posterUrl}
+                                                alt={movie.title}
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                            />
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-red-600 to-red-800"></div>
+                        )}
+
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 flex items-center justify-center">
+                            <div className="text-center z-10">
+                                <h2 className="text-5xl font-bold mb-3 drop-shadow-lg">Películas</h2>
+                                <p className="text-xl text-gray-200 drop-shadow-lg">Explora nuestro catálogo</p>
                             </div>
                         </div>
                     </Link>
 
+                    {/* Series */}
                     <Link
                         to="/tv"
-                        className="group relative h-64 rounded-2xl overflow-hidden bg-gradient-to-br from-blue-600 to-blue-800 hover:scale-105 transition-transform"
+                        className="group relative h-80 rounded-2xl overflow-hidden shadow-2xl hover:scale-105 transition-transform"
                     >
-                        <div className="absolute inset-0 flex items-center justify-center">
-                            <div className="text-center">
-                                <h2 className="text-4xl font-bold mb-2">Series</h2>
-                                <p className="text-lg text-gray-200">Descubre nuevas historias</p>
+                        {/* Collage de Imágenes de Series */}
+                        {popularShows.length > 0 ? (
+                            <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-1">
+                                {popularShows.slice(0, 6).map((show, index) => {
+                                    const posterUrl = show.poster_path
+                                        ? `${TMDB_IMAGE_BASE_URL}${IMAGE_SIZES.poster}${show.poster_path}`
+                                        : 'https://via.placeholder.com/500x750?text=No+Image'
+
+                                    return (
+                                        <div
+                                            key={index}
+                                            className="relative overflow-hidden"
+                                        >
+                                            <img
+                                                src={posterUrl}
+                                                alt={show.name}
+                                                className="w-full h-full object-cover transition-transform group-hover:scale-110"
+                                            />
+                                        </div>
+                                    )
+                                })}
+                            </div>
+                        ) : (
+                            <div className="absolute inset-0 bg-gradient-to-br from-blue-600 to-blue-800"></div>
+                        )}
+
+                        {/* Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/70 to-black/30 flex items-center justify-center">
+                            <div className="text-center z-10">
+                                <h2 className="text-5xl font-bold mb-3 drop-shadow-lg">Series</h2>
+                                <p className="text-xl text-gray-200 drop-shadow-lg">Descubre nuevas historias</p>
                             </div>
                         </div>
                     </Link>
@@ -193,23 +255,23 @@ function Home() {
 
                 {/* Call to Action */}
                 {!isAuthenticated && (
-                <section className="bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl p-12 text-center">
-                    <h2 className="text-4xl font-bold mb-4">
-                        ¿Listo para explorar?
-                    </h2>
-                    <p className="text-xl text-gray-100 mb-8">
-                        Crea tu cuenta y comienza a guardar tus favoritos
-                    </p>
-                    <Link
-                        to="/register"
-                        className="inline-block bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition transform hover:scale-105"
-                    >
-                        Registrarse Gratis
-                    </Link>
-                </section>
+                    <section className="bg-gradient-to-r from-red-600 to-blue-600 rounded-2xl p-12 text-center">
+                        <h2 className="text-4xl font-bold mb-4">
+                            ¿Listo para explorar?
+                        </h2>
+                        <p className="text-xl text-gray-100 mb-8">
+                            Crea tu cuenta y comienza a guardar tus favoritos
+                        </p>
+                        <Link
+                            to="/register"
+                            className="inline-block bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 rounded-lg font-bold text-lg transition transform hover:scale-105"
+                        >
+                            Registrarse Gratis
+                        </Link>
+                    </section>
                 )}
             </div>
-        </div>
+                    </div>
     )
 }
 
