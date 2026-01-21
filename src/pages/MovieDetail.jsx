@@ -3,10 +3,12 @@ import { useParams, Link } from 'react-router-dom'
 import { FiArrowLeft, FiStar, FiCalendar, FiClock, FiHeart, FiList } from 'react-icons/fi'
 import { FaHeart, FaList, FaStar } from 'react-icons/fa'
 import movieService from '../services/movieService'
+import reviewService from '../services/reviewService'
 import { TMDB_IMAGE_BASE_URL, IMAGE_SIZES } from '../utils/constants'
 import WatchlistModal from '../components/common/WatchlistModal'
 import useFavorite from '../hooks/useFavorite'
 import useWatchlist from '../hooks/useWatchlist'
+import ReviewModal from '../components/common/ReviewModal'
 import useAuthStore from '../stores/useAuthStore'
 import MovieCard from '../components/movies/MovieCard'
 import useWatchlistStore from '../stores/useWatchlistStore'
@@ -18,11 +20,15 @@ function MovieDetail() {
     const [loading, setLoading] = useState(true)
     const [error, setError] = useState(null)
     const [providers, setProviders] = useState(null)
+    const [userReview, setUserReview] = useState(null)
+    const [allReviews, setAllReviews] = useState([])
 
 
     const [showWatchlistModal, setShowWatchlistModal] = useState(false)
+    const [showReviewModal, setShowReviewModal] = useState(false)
 
     const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+    const user = useAuthStore((state) => state.user)
 
     useEffect(() => {
         loadMovieDetail()
@@ -45,11 +51,33 @@ function MovieDetail() {
             // Obtener providers de tu país (ES = España)
             const countryProviders = providersData.results?.ES
             setProviders(countryProviders)
+            // Cargar reseñas si está autenticado
+            if (isAuthenticated) {
+                loadReviews()
+            }
         } catch (err) {
             console.error('Error loading movie:', err)
             setError('Error al cargar la película')
         } finally {
             setLoading(false)
+        }
+    }
+
+    const loadReviews = async () => {
+        try {
+            // Cargar reseña del usuario
+            const myReview = await reviewService.getUserReview('movie', id)
+            setUserReview(myReview)
+
+            // Cargar todas las reseñas
+            const allReviewsData = await reviewService.getAllReviews('movie', id)
+            // Filtrar para no mostrar la del usuario en "Principales reseñas"
+            const otherReviews = allReviewsData.reviews.filter(
+                review => review.user_id !== user?.id
+            )
+            setAllReviews(otherReviews)
+        } catch (err) {
+            console.error('Error cargando reseñas:', err)
         }
     }
 
@@ -171,11 +199,20 @@ function MovieDetail() {
                                         key={genre.id}
                                         className="bg-gray-800 px-3 py-1 rounded-full text-sm"
                                     >
-                    {genre.name}
-                  </span>
+                                        {genre.name}
+                                    </span>
                                 ))}
+
+                                {/* Estado - Solo si existe */}
+                                {watchlistItem?.status && (
+                                    <span className="bg-blue-600 px-3 py-1 rounded-full text-sm font-medium">
+                                Estado: {watchlistItem.status === 'completed' ? 'Vista' :
+                                         watchlistItem.status === 'watching' ? 'Viendo' : 'Por Ver'}
+                            </span>
+                                )}
                             </div>
                         )}
+
 
                         {/* Buttons */}
                         {isAuthenticated && (
@@ -183,37 +220,40 @@ function MovieDetail() {
                                 <button
                                     onClick={toggleFavorite}
                                     disabled={favoriteLoading}
-                                    className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 px-6 py-3 rounded-lg transition"
+                                    className="p-2 hover:bg-gray-800 rounded-lg transition disabled:opacity-50"
+                                    title={isFavorite ? "Quitar de favoritos" : "Agregar a favoritos"}
                                 >
                                     {isFavorite ? (
-                                        <>
-                                            <FaHeart className="text-red-500" />
-                                            <span>En Favoritos</span>
-                                        </>
+                                            <FaHeart className="text-red-500 text-2xl" />
                                     ) : (
-                                        <>
-                                            <FiHeart />
-                                            <span>Agregar a Favoritos</span>
-                                        </>
+                                            <FiHeart className="text-gray-400 hover:text-red-500 text-2xl" />
                                     )}
                                 </button>
 
                                 <button
                                     onClick={() => setShowWatchlistModal(true)}
                                     disabled={watchlistLoading}
-                                    className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 px-6 py-3 rounded-lg transition"
+                                    className="p-2 hover:bg-gray-800 rounded-lg transition disabled:opacity-50"
+                                    title={isInWatchlist ? "Editar en mi lista" : "Agregar a mi lista"}
                                 >
                                     {isInWatchlist ? (
-                                        <>
-                                            <FaList className="text-blue-500" />
-                                            <span>Editar en Mi Lista</span>
-                                        </>
+                                            <FaList className="text-blue-500 text-2xl" />
                                     ) : (
-                                        <>
-                                            <FiList />
-                                            <span>Agregar a Mi Lista</span>
-                                        </>
+                                            <FiList className="text-gray-400 hover:text-blue-500 text-2xl" />
                                     )}
+                                </button>
+
+                                {/* Reseña */}
+                                <button
+                                    onClick={() => setShowReviewModal(true)}
+                                    className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition text-sm ${
+                                        userReview
+                                            ? 'bg-green-600 hover:bg-green-700 text-white'
+                                            : 'bg-gray-800 hover:bg-gray-700 text-white'
+                                    }`}
+                                    title={userReview ? 'Editar tu reseña' : 'Agregar reseña'}
+                                >
+                                    <span>{userReview ? 'Mi Reseña' : 'Reseña'}</span>
                                 </button>
                             </div>
                         )}
@@ -325,51 +365,134 @@ function MovieDetail() {
                             </div>
                         )}
 
-                        {/* Mi Reseña */}
-                        {watchlistItem && (
+                        {/* Reseñas - Usuario actual + Otros usuarios */}
+                        {isAuthenticated && (userReview || allReviews.length > 0) && (
                             <div className="mt-8 bg-gray-800 p-6 rounded-lg">
-                                <h2 className="text-2xl font-bold mb-4">Mi Reseña</h2>
+                                <style>{`
+                                    .reviews-container::-webkit-scrollbar {
+                                        width: 6px;
+                                    }
+                                    .reviews-container::-webkit-scrollbar-track {
+                                        background: #1F2937;
+                                        border-radius: 10px;
+                                    }
+                                    .reviews-container::-webkit-scrollbar-thumb {
+                                        background: #4B5563;
+                                        border-radius: 10px;
+                                    }
+                                    .reviews-container::-webkit-scrollbar-thumb:hover {
+                                        background: #6B7280;
+                                    }
+                                `}</style>
 
-                                <div className="flex items-center space-x-4 mb-4">
-                                    <div className="flex items-center space-x-2">
-                                        <span className="text-gray-400">Estado:</span>
-                                        <span className="bg-blue-600 px-3 py-1 rounded-full text-sm">
-                                          {watchlistItem.status === 'completed' ? 'Vista' :
-                                              watchlistItem.status === 'watching' ? 'Viendo' : 'Por Ver'}
-                                        </span>
-                                    </div>
+                                <h2 className="text-2xl font-bold mb-6">Principales reseñas</h2>
 
-                                    {watchlistItem.user_rating && (
-                                        <div className="flex items-center space-x-2">
-                                            <span className="text-gray-400">Mi Puntuación:</span>
-                                            <div className="flex items-center space-x-1">
-                                                {[...Array(5)].map((_, i) => (
-                                                    <FaStar
-                                                        key={i}
-                                                        className={i < watchlistItem.user_rating ? 'text-yellow-500' : 'text-gray-600'}
-                                                    />
-                                                ))}
-                                                <span className="text-yellow-500 font-bold ml-2">
-                                                  {watchlistItem.user_rating}/5
-                                                </span>
+                                <div
+                                    className={`reviews-container space-y-6 pr-2 ${
+                                        (userReview ? 1 : 0) + allReviews.length > 4
+                                            ? 'max-h-[400px] overflow-y-auto'
+                                            : ''
+                                    }`}
+                                >
+                                    {/* Mi Reseña primero */}
+                                    {userReview && (
+                                        <div className="border-b border-gray-700 pb-6">
+                                            {/* Usuario y puntuación */}
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center gap-4">
+                                                    {/* Mi nombre */}
+                                                    <span className="text-gray-400 text-sm font-semibold">
+                                                    {user?.name || 'Tú'} (Tú)
+                                                    </span>
+
+                                                        {/* Estado si existe */}
+                                                        {watchlistItem?.status && (
+                                                        <span className="bg-blue-600 px-2 py-0.5 rounded-full text-xs">
+                                                            Estado: {watchlistItem.status === 'completed' ? 'Vista' :
+                                                                                    watchlistItem.status === 'watching' ? 'Viendo' : 'Por Ver'}
+                                                        </span>
+                                                            )}
+
+                                                    {/* Puntuación */}
+                                                    {userReview.rating && (
+                                                        <div className="flex items-center space-x-1">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <FaStar
+                                                                    key={i}
+                                                                    className={i < userReview.rating ? 'text-yellow-500 text-sm' : 'text-gray-600 text-sm'}
+                                                                />
+                                                            ))}
+                                                            <span className="text-yellow-500 font-semibold text-sm ml-1">
+                                                                {userReview.rating}.0/5
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Botón Editar */}
+                                                <button
+                                                    onClick={() => setShowReviewModal(true)}
+                                                    className="text-blue-500 hover:text-blue-400 transition text-sm"
+                                                >
+                                                    Editar reseña
+                                                </button>
                                             </div>
+
+                                            {/* Mi Reseña */}
+                                            {userReview.review && (
+                                                <p className="text-gray-300 leading-relaxed text-sm">
+                                                    {userReview.review}
+                                                </p>
+                                            )}
                                         </div>
                                     )}
+
+                                    {/* Reseñas de otros usuarios */}
+                                    {allReviews.map((review) => (
+                                        <div key={review.id} className="border-b border-gray-700 pb-6 last:border-b-0 last:pb-0">
+                                            {/* Usuario y puntuación */}
+                                            <div className="flex items-center justify-between mb-3">
+                                                <div className="flex items-center gap-4">
+                                                    {/* Nombre del usuario */}
+                                                    <span className="text-gray-400 text-sm">
+                                                        {review.user?.name || 'Usuario'}
+                                                    </span>
+
+                                                    {/* Puntuación */}
+                                                    {review.rating && (
+                                                        <div className="flex items-center space-x-1">
+                                                            {[...Array(5)].map((_, i) => (
+                                                                <FaStar
+                                                                    key={i}
+                                                                    className={i < review.rating ? 'text-yellow-500 text-sm' : 'text-gray-600 text-sm'}
+                                                                />
+                                                            ))}
+                                                            <span className="text-yellow-500 font-semibold text-sm ml-1">
+                                                                {review.rating}.0/5
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                </div>
+
+                                                {/* Fecha */}
+                                                <span className="text-gray-500 text-xs">
+                                                    {new Date(review.created_at).toLocaleDateString('es-ES', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric'
+                                                    })}
+                                                </span>
+                                            </div>
+
+                                            {/* Reseña */}
+                                            {review.review && (
+                                                <p className="text-gray-300 leading-relaxed text-sm">
+                                                    {review.review}
+                                                </p>
+                                            )}
+                                        </div>
+                                    ))}
                                 </div>
-
-                                {watchlistItem.notes && (
-                                    <div>
-                                        <span className="text-gray-400 block mb-2">Mis Notas:</span>
-                                        <p className="text-gray-300 leading-relaxed">{watchlistItem.notes}</p>
-                                    </div>
-                                )}
-
-                                <button
-                                    onClick={() => setShowWatchlistModal(true)}
-                                    className="mt-4 text-blue-500 hover:text-blue-400 transition"
-                                >
-                                    Editar reseña
-                                </button>
                             </div>
                         )}
                     </div>
@@ -393,6 +516,21 @@ function MovieDetail() {
                 <WatchlistModal
                     isOpen={showWatchlistModal}
                     onClose={() => setShowWatchlistModal(false)}
+                    tmdbId={movie.id}
+                    mediaType="movie"
+                    title={movie.title}
+                    posterPath={movie.poster_path}
+                />
+            )}
+
+            {/* Review Modal */}
+            {movie && (
+                <ReviewModal
+                    isOpen={showReviewModal}
+                    onClose={() => {
+                        setShowReviewModal(false)
+                        loadReviews() // Recargar reseñas al cerrar
+                    }}
                     tmdbId={movie.id}
                     mediaType="movie"
                     title={movie.title}

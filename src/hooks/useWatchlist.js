@@ -31,7 +31,6 @@ function useWatchlist(tmdbId, mediaType, title, posterPath) {
                 media_type: mediaType,
                 title: title,
                 poster_path: posterPath,
-                status: 'plan_to_watch',
             })
         } catch (error) {
             console.error('Error toggling watchlist:', error)

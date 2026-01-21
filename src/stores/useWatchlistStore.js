@@ -29,7 +29,7 @@ const useWatchlistStore = create((set, get) => ({
                 media_type: mediaData.media_type,
                 title: mediaData.title,
                 poster_path: mediaData.poster_path || null,
-                status: mediaData.status || 'plan_to_watch',
+                status: mediaData.status || null,
                 user_rating: mediaData.user_rating || null,
                 notes: mediaData.notes || null,
             });
