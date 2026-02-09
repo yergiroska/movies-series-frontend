@@ -71,6 +71,7 @@ function MovieDetail() {
 
             // Cargar todas las reseñas
             const allReviewsData = await reviewService.getAllReviews('movie', id)
+            console.log(allReviewsData)
             // Filtrar para no mostrar la del usuario en "Principales reseñas"
             const otherReviews = allReviewsData.reviews.filter(
                 review => review.user_id !== user?.id
@@ -406,12 +407,12 @@ function MovieDetail() {
                                                     </span>
 
                                                         {/* Estado si existe */}
-                                                        {watchlistItem?.status && (
+                                                    {/*{watchlistItem?.status && (
                                                         <span className="bg-blue-600 px-2 py-0.5 rounded-full text-xs">
                                                             Estado: {watchlistItem.status === 'completed' ? 'Vista' :
                                                                                     watchlistItem.status === 'watching' ? 'Viendo' : 'Por Ver'}
                                                         </span>
-                                                            )}
+                                                            )}*/}
 
                                                     {/* Puntuación */}
                                                     {userReview.rating && (

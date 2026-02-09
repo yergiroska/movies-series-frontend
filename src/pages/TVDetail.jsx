@@ -411,12 +411,12 @@ function TVDetail() {
                                                     </span>
 
                                                     {/* Estado si existe */}
-                                                    {watchlistItem?.status && (
+                                                    {/*{watchlistItem?.status && (
                                                         <span className="bg-blue-600 px-2 py-0.5 rounded-full text-xs">
                                                             Estado: {watchlistItem.status === 'completed' ? 'Vista' :
                                                                      watchlistItem.status === 'watching' ? 'Viendo' : 'Por Ver'}
                                                         </span>
-                                                    )}
+                                                    )}*/}
 
                                                     {/* Puntuación */}
                                                     {userReview.rating && (

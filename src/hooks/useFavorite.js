@@ -9,6 +9,7 @@ function useFavorite(tmdbId, mediaType, title, posterPath, overview) {
     const isFavorite = useFavoriteStore((state) =>
         state.isFavorite(mediaType, tmdbId)
     )
+
     const toggleFavoriteInStore = useFavoriteStore((state) => state.toggleFavorite)
 
     const toggleFavorite = async () => {
