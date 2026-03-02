@@ -24,7 +24,7 @@ const useWatchlistStore = create((set, get) => ({
         console.log('Store addToWatchlist received:', mediaData);  // ← AGREGAR
         set({ isLoading: true, error: null });
         try {
-            const response = await watchlistService.add({
+            let sendDataWatchlist = {
                 tmdb_id: parseInt(mediaData.tmdb_id),
                 media_type: mediaData.media_type,
                 title: mediaData.title,
@@ -32,7 +32,8 @@ const useWatchlistStore = create((set, get) => ({
                 status: mediaData.status || null,
                 user_rating: mediaData.user_rating || null,
                 notes: mediaData.notes || null,
-            });
+            }
+            const response = await watchlistService.add(sendDataWatchlist);
 
             console.log('Response from backend:', response);
             set((state) => ({

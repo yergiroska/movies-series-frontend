@@ -31,14 +31,16 @@ function WatchlistModal({ isOpen, onClose, tmdbId, mediaType, title, posterPath 
                     status,
                 })
             } else {
-                // Crear nuevo (sin estado por defecto)
-                await addToWatchlist({
+                let sendDataWatchlist = {
                     tmdb_id: tmdbId,
                     media_type: mediaType,
                     title,
                     poster_path: posterPath,
-                    status: null, // Sin estado al agregar desde películas
-                })
+                    status: status,
+                }
+                console.log('Datos de la modal WatchlistModal: ',sendDataWatchlist)
+                // Crear nuevo (sin estado por defecto)
+                await addToWatchlist(sendDataWatchlist)
             }
             onClose()
             window.location.reload()
