@@ -76,7 +76,7 @@ function ReviewModal({ isOpen, onClose, tmdbId, mediaType, title, posterPath }) 
             }
 
             onClose()
-            window.location.reload()
+            //window.location.reload()
         } catch (err) {
             setError(existingReview ? 'Error al actualizar la reseña' : 'Error al guardar la reseña')
             console.error(err)
@@ -94,7 +94,7 @@ function ReviewModal({ isOpen, onClose, tmdbId, mediaType, title, posterPath }) 
         try {
             await reviewService.deleteReview(existingReview.id)
             onClose()
-            window.location.reload()
+            //window.location.reload()
         } catch (err) {
             setError('Error al eliminar la reseña')
             console.error(err)

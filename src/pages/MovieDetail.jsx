@@ -71,7 +71,7 @@ function MovieDetail() {
 
             // Cargar todas las reseñas
             const allReviewsData = await reviewService.getAllReviews('movie', id)
-            console.log(allReviewsData)
+            //console.log(allReviewsData)
             // Filtrar para no mostrar la del usuario en "Principales reseñas"
             const otherReviews = allReviewsData.reviews.filter(
                 review => review.user_id !== user?.id
