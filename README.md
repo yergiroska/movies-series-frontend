@@ -1,6 +1,6 @@
 # 🎬 CineVerse - Frontend
 
-> Interfaz web moderna para descubrir, organizar y reseñar películas y series. Construida con **React 19** y **Vite**, conectada a la [CineVerse API](../cineverse-python).
+> Interfaz web moderna para descubrir, organizar y reseñar películas y series. Construida con **React 19** y **Vite**, conectada a la [cineverse-python](https://github.com/yergiroska/cineverse-python).
 
 ---
 
@@ -21,7 +21,7 @@
 
 CineVerse Frontend es una SPA (Single Page Application) estilo Netflix que permite a los usuarios explorar películas y series usando datos en tiempo real de **TMDB API**, gestionar sus favoritos, lista de seguimiento y reseñas personales.
 
-El backend (FastAPI + PostgreSQL) está disponible en: [cineverse-python](../cineverse-python)
+El backend (FastAPI + PostgreSQL) está disponible en: [cineverse-python](https://github.com/yergiroska/cineverse-python).
 
 ---
 
